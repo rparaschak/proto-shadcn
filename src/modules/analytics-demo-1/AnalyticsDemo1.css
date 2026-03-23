@@ -1,0 +1,12 @@
+/* Module-specific sidebar positioning override */
+.module-sidebar-wrapper [data-slot="sidebar-container"] {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+}
+
+/* Ensure the SidebarProvider wrapper doesn't use full viewport height */
+.module-sidebar-wrapper [data-slot="sidebar-wrapper"] {
+  min-height: 100% !important;
+  height: 100% !important;
+}
