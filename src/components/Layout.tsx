@@ -71,7 +71,7 @@ export default function Layout() {
         </div>
       </header>
 
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full min-h-0">
         <Outlet />
       </main>
     </div>

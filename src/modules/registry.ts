@@ -1,4 +1,4 @@
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, MessageSquare } from 'lucide-react'
 import type { ComponentType } from 'react'
 
 export interface ModuleDefinition {
@@ -16,5 +16,12 @@ export const modules: ModuleDefinition[] = [
     description: 'User analytics dashboard with charts',
     icon: BarChart3,
     path: '/analytics-demo-1',
+  },
+  {
+    id: 'ai-support-chat',
+    name: 'AI Support Chat',
+    description: 'AI-powered customer support chat with conversation history',
+    icon: MessageSquare,
+    path: '/ai-support-chat',
   },
 ]
