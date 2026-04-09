@@ -3,10 +3,13 @@
 ## What This Is
 A prototyping platform where product managers create and navigate feature prototypes via a module selector in the header. Each module = one feature, fully isolated.
 
+## Workflow
+When user starts a chat, check if local app is running using curl. 
+If not run `npm start` and give the url to the user
+When user is done, commit and push the code
+
 ## Commands
-- `npm run build` - Test compilation (use this, not `npm run dev` — dev server is always running)
-- `npm run dev` - Start dev server
-- `npm run lint` - Lint
+- `npm start`
 
 ## Rules
 - You can work only on a single module/feature in the same chat. If user starts working on other feature suggest starting a new chat before you continue.
