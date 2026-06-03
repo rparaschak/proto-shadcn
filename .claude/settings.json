@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash scripts/dev.sh)",
+      "Bash(npm start:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm ls:*)",
+      "Bash(curl:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "mcp__shadcn-ui-server__search_components",
+      "mcp__shadcn-ui-server__list_shadcn_components",
+      "mcp__shadcn-ui-server__get_component_details",
+      "mcp__shadcn-ui-server__get_component_examples",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_evaluate"
+    ],
+    "deny": []
+  }
+}

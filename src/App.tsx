@@ -5,7 +5,7 @@ import AiSupportChat from './modules/ai-support-chat/AiSupportChat'
 
 function App() {
   return (
-    <BrowserRouter basename="/proto-shadcn">
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/analytics-demo-1/*" element={<AnalyticsDemo1 />} />
