@@ -8,13 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Grid3x3, Search } from 'lucide-react'
+import { Grid3x3, Search, Sparkles, Home } from 'lucide-react'
 import { modules } from '@/modules/registry'
 
 export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const currentModule = modules.find(m => location.pathname.startsWith(m.path)) || modules[0]
+  const currentModule = modules.find(m => location.pathname.startsWith(m.path))
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -28,6 +28,19 @@ export default function Layout() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-72">
+                <DropdownMenuItem
+                  className="flex items-center gap-3 px-3 py-2.5"
+                  onClick={() => navigate('/')}
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded bg-muted">
+                    <Home className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">Welcome</div>
+                    <div className="text-xs text-muted-foreground">Tutorial & overview</div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <div className="px-3 py-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">Modules</h3>
                 </div>
@@ -50,12 +63,17 @@ export default function Layout() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className="flex items-center gap-2">
+            <button
+              className="flex items-center gap-2"
+              onClick={() => navigate(currentModule?.path ?? '/')}
+            >
               <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 text-white">
-                <currentModule.icon className="w-4 h-4" />
+                {currentModule
+                  ? <currentModule.icon className="w-4 h-4" />
+                  : <Sparkles className="w-4 h-4" />}
               </div>
-              <h1 className="text-lg font-semibold">{currentModule.name}</h1>
-            </div>
+              <h1 className="text-lg font-semibold">{currentModule?.name ?? 'Proto Shadcn'}</h1>
+            </button>
           </div>
 
           <div className="flex items-center gap-4">
