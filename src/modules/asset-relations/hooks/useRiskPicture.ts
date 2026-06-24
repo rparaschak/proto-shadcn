@@ -58,6 +58,26 @@ export function useRiskPicture() {
     setRelations((prev) => prev.filter((r) => !idSet.has(r.id)))
   }, [])
 
+  // Create a "fromId depends on toId" relation. Rejects self-links and pairs
+  // that are already related in either direction.
+  const addRelation = useCallback(
+    (fromId: string, toId: string): { ok: boolean; reason?: string } => {
+      if (fromId === toId) return { ok: false, reason: 'An asset cannot depend on itself' }
+      const exists = relations.some(
+        (r) =>
+          (r.fromAssetId === fromId && r.toAssetId === toId) ||
+          (r.fromAssetId === toId && r.toAssetId === fromId),
+      )
+      if (exists) return { ok: false, reason: 'These assets are already related' }
+      setRelations((prev) => [
+        ...prev,
+        { id: `rel-${fromId}-${toId}`, fromAssetId: fromId, toAssetId: toId, type: 'depends_on' },
+      ])
+      return { ok: true }
+    },
+    [relations],
+  )
+
   const togglePin = useCallback((assetId: string) => {
     setAssets((prev) =>
       prev.map((a) => (a.id === assetId ? { ...a, pinned: !a.pinned } : a)),
@@ -139,6 +159,7 @@ export function useRiskPicture() {
     getRelationsForAsset,
     removeRelation,
     removeRelations,
+    addRelation,
     togglePin,
     updateAssetCia,
     renameAsset,

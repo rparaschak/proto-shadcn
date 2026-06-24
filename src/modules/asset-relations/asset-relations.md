@@ -31,9 +31,13 @@ asset's CIA risk shown directly on the card.
   - top-center **+ / −** act on the *"depends on this"* relations (assets that
     depend on this one).
   - bottom-center **+ / −** act on the *"this depends on"* relations.
-  - The **−** only shows when that direction has at least one relation. Removing:
-    a single relation → confirm dialog; multiple → a modal (scoped to that
-    direction) to pick which to remove.
+  - **Add (click-to-connect):** clicking **+** enters connect mode — a banner
+    appears, the origin card is highlighted, and every other card becomes a
+    target. Click a target to draw the relation; click the origin or press
+    **Esc** to cancel. Self-links and already-related pairs are rejected.
+  - **Remove:** the **−** only shows when that direction has at least one
+    relation. A single relation → confirm dialog; multiple → a modal (scoped to
+    that direction) to pick which to remove.
 
 ## Toolbar & views
 

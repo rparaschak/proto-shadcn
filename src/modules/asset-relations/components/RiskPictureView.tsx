@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ZoomIn, ZoomOut, Maximize } from 'lucide-react'
 import { toast } from 'sonner'
 import { useZoomPan } from '../hooks/useZoomPan'
@@ -35,6 +35,7 @@ export default function RiskPictureView({ data, search, filter }: RiskPictureVie
     getRelationsForAsset,
     removeRelation,
     removeRelations,
+    addRelation,
     togglePin,
     updateAssetCia,
     renameAsset,
@@ -43,6 +44,13 @@ export default function RiskPictureView({ data, search, filter }: RiskPictureVie
   const { transform, handlers, zoomBy, reset } = useZoomPan({ x: 80, y: 28, scale: 1 })
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  // In-progress "add relation": the origin asset and which direction the new
+  // relation runs. The next asset clicked becomes the other end.
+  const [pendingAdd, setPendingAdd] = useState<{
+    assetId: string
+    direction: RelationInfo['direction']
+  } | null>(null)
 
   // Remove-relation dialogs
   const [modalAsset, setModalAsset] = useState<Asset | null>(null)
@@ -147,6 +155,51 @@ export default function RiskPictureView({ data, search, filter }: RiskPictureVie
     setRiskOpen(true)
   }
 
+  const startAdd = useCallback((asset: Asset, direction: RelationInfo['direction']) => {
+    setSelectedId(null)
+    setPendingAdd({ assetId: asset.id, direction })
+  }, [])
+
+  const pendingOrigin = pendingAdd ? assets.find((a) => a.id === pendingAdd.assetId) ?? null : null
+
+  // Click handler for a card: completes an in-progress relation, or selects.
+  const handleCardClick = useCallback(
+    (asset: Asset) => {
+      if (!pendingAdd) {
+        setSelectedId((prev) => (prev === asset.id ? null : asset.id))
+        return
+      }
+      if (asset.id === pendingAdd.assetId) {
+        setPendingAdd(null) // clicking the origin cancels
+        return
+      }
+      const [fromId, toId] =
+        pendingAdd.direction === 'depends_on'
+          ? [pendingAdd.assetId, asset.id]
+          : [asset.id, pendingAdd.assetId]
+      const result = addRelation(fromId, toId)
+      if (result.ok) {
+        const from = assets.find((a) => a.id === fromId)
+        const to = assets.find((a) => a.id === toId)
+        toast.success(`${from?.name} now depends on ${to?.name}`)
+      } else {
+        toast.error(result.reason ?? 'Could not add relation')
+      }
+      setPendingAdd(null)
+    },
+    [pendingAdd, addRelation, assets],
+  )
+
+  // Esc cancels an in-progress relation.
+  useEffect(() => {
+    if (!pendingAdd) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPendingAdd(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [pendingAdd])
+
   return (
     <div className="relative h-full w-full overflow-hidden rounded-lg border border-stone-200 bg-stone-50/60">
       {/* Pan/zoom interaction layer */}
@@ -187,18 +240,18 @@ export default function RiskPictureView({ data, search, filter }: RiskPictureVie
                   selected={selectedId === asset.id}
                   dependedOnByCount={dependedOnByCount}
                   dependsOnCount={dependsOnCount}
-                  onSelect={() => setSelectedId((prev) => (prev === asset.id ? null : asset.id))}
+                  connecting={pendingAdd !== null}
+                  isPendingOrigin={pendingAdd?.assetId === asset.id}
+                  onSelect={() => handleCardClick(asset)}
                   onTogglePin={() => {
                     togglePin(asset.id)
                     toast.success(asset.pinned ? `${asset.name} unpinned` : `${asset.name} pinned`)
                   }}
                   onEdit={() => openEdit(asset)}
                   onRisk={() => openRisk(asset)}
-                  onAddDependedOnBy={() =>
-                    toast.info(`Add an asset that depends on ${asset.name}`)
-                  }
+                  onAddDependedOnBy={() => startAdd(asset, 'depended_on_by')}
                   onRemoveDependedOnBy={() => handleRemoveClick(asset, 'depended_on_by')}
-                  onAddDependsOn={() => toast.info(`Add an asset that ${asset.name} depends on`)}
+                  onAddDependsOn={() => startAdd(asset, 'depends_on')}
                   onRemoveDependsOn={() => handleRemoveClick(asset, 'depends_on')}
                 />
               </div>
@@ -206,6 +259,29 @@ export default function RiskPictureView({ data, search, filter }: RiskPictureVie
           })}
         </div>
       </div>
+
+      {/* Connect-mode banner */}
+      {pendingAdd && pendingOrigin && (
+        <div className="absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-3 rounded-full border border-emerald-300 bg-white px-4 py-1.5 text-sm shadow-sm">
+          <span className="text-stone-700">
+            {pendingAdd.direction === 'depends_on' ? (
+              <>
+                Click the asset that <strong>{pendingOrigin.name}</strong> depends on
+              </>
+            ) : (
+              <>
+                Click the asset that depends on <strong>{pendingOrigin.name}</strong>
+              </>
+            )}
+          </span>
+          <button
+            onClick={() => setPendingAdd(null)}
+            className="rounded-full px-2 py-0.5 text-xs text-stone-500 hover:bg-stone-100"
+          >
+            Cancel (Esc)
+          </button>
+        </div>
+      )}
 
       {/* Zoom controls */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded-md border border-stone-200 bg-white p-1 shadow-sm">

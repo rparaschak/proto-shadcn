@@ -10,6 +10,10 @@ interface AssetCardProps {
   dependedOnByCount: number
   /** Number of assets this one depends on (the "depends on" group). */
   dependsOnCount: number
+  /** A relation is being added: the whole card is a connect target. */
+  connecting: boolean
+  /** This card is the origin of the in-progress relation. */
+  isPendingOrigin: boolean
   onSelect: () => void
   onTogglePin: () => void
   onEdit: () => void
@@ -28,6 +32,8 @@ export default function AssetCard({
   selected,
   dependedOnByCount,
   dependsOnCount,
+  connecting,
+  isPendingOrigin,
   onSelect,
   onTogglePin,
   onEdit,
@@ -42,14 +48,28 @@ export default function AssetCard({
     fn()
   }
 
+  // While connecting, the whole card is a click target: hide the hover
+  // controls and make the CIA panel non-interactive so clicks reach the card.
+  const cardStateClasses = isPendingOrigin
+    ? 'border-sky-400 ring-2 ring-sky-300/60'
+    : connecting
+      ? 'border-emerald-300 hover:border-emerald-400 hover:ring-2 hover:ring-emerald-300/60'
+      : selected
+        ? 'border-sky-400 ring-2 ring-sky-300/60'
+        : 'border-stone-200 hover:border-stone-300 hover:shadow'
+
   return (
     <div
-      className="group relative"
+      className={`group relative ${connecting ? 'cursor-pointer' : ''}`}
       style={{ width: CARD_W, height: CARD_H }}
       onClick={onSelect}
     >
       {/* Top controls: add / remove an asset that depends on this one */}
-      <div className="absolute -top-2.5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+      <div
+        className={`absolute -top-2.5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 ${
+          connecting ? 'hidden' : ''
+        }`}
+      >
         <button
           onClick={stop(onAddDependedOnBy)}
           className={`${cornerBtn} opacity-0 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 group-hover:opacity-100`}
@@ -69,20 +89,22 @@ export default function AssetCard({
       </div>
 
       <div
-        className={`flex h-full w-full cursor-pointer overflow-hidden rounded-md border bg-white shadow-sm transition-all ${
-          selected
-            ? 'border-sky-400 ring-2 ring-sky-300/60'
-            : 'border-stone-200 hover:border-stone-300 hover:shadow'
-        }`}
+        className={`flex h-full w-full cursor-pointer overflow-hidden rounded-md border bg-white shadow-sm transition-all ${cardStateClasses}`}
       >
-        {/* CIA column — clicking opens the risk dialog */}
-        <button
-          onClick={stop(onRisk)}
-          className="shrink-0 cursor-pointer"
-          title="View risk (CIA) details"
-        >
-          <CiaPanel asset={asset} />
-        </button>
+        {/* CIA column — clicking opens the risk dialog (inert while connecting) */}
+        {connecting ? (
+          <div className="shrink-0">
+            <CiaPanel asset={asset} />
+          </div>
+        ) : (
+          <button
+            onClick={stop(onRisk)}
+            className="shrink-0 cursor-pointer"
+            title="View risk (CIA) details"
+          >
+            <CiaPanel asset={asset} />
+          </button>
+        )}
 
         <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-2">
           <div className="flex items-center gap-1.5">
@@ -99,6 +121,8 @@ export default function AssetCard({
       <button
         onClick={stop(onTogglePin)}
         className={`${cornerBtn} absolute -top-2 -right-2 z-10 transition-opacity hover:border-sky-300 hover:text-sky-600 ${
+          connecting ? 'hidden' : ''
+        } ${
           asset.pinned
             ? 'border-sky-300 bg-sky-50 text-sky-600 opacity-100'
             : 'opacity-0 group-hover:opacity-100'
@@ -111,14 +135,20 @@ export default function AssetCard({
       {/* Edit (bottom-right) */}
       <button
         onClick={stop(onEdit)}
-        className={`${cornerBtn} absolute -bottom-2 -right-2 z-10 opacity-0 hover:border-stone-300 hover:text-stone-700 group-hover:opacity-100`}
+        className={`${cornerBtn} absolute -bottom-2 -right-2 z-10 opacity-0 hover:border-stone-300 hover:text-stone-700 group-hover:opacity-100 ${
+          connecting ? 'hidden' : ''
+        }`}
         title="Edit asset"
       >
         <Pencil className="h-3 w-3" />
       </button>
 
       {/* Bottom controls: add / remove an asset this one depends on */}
-      <div className="absolute -bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+      <div
+        className={`absolute -bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 ${
+          connecting ? 'hidden' : ''
+        }`}
+      >
         <button
           onClick={stop(onAddDependsOn)}
           className={`${cornerBtn} opacity-0 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 group-hover:opacity-100`}
