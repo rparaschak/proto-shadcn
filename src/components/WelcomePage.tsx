@@ -92,7 +92,7 @@ function FeatureDevelopmentSection() {
           <Card key={step.title} className="relative">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <step.icon className="w-4 h-4" />
                 </div>
                 <span className="text-2xl font-bold text-muted-foreground/30">{i + 1}</span>
@@ -239,11 +239,11 @@ function ModulesSection() {
           <Card
             key={module.id}
             onClick={() => navigate(module.path)}
-            className="cursor-pointer transition-colors hover:border-blue-600/50 hover:bg-accent/40"
+            className="cursor-pointer transition-colors hover:border-primary/50 hover:bg-accent/40"
           >
             <CardHeader>
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <module.icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1">

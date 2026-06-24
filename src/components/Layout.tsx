@@ -18,7 +18,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b bg-white w-full">
+      <header className="border-b bg-card w-full">
         <div className="flex h-14 items-center justify-between px-6">
           <div className="flex items-center gap-4">
             <DropdownMenu>
@@ -67,7 +67,7 @@ export default function Layout() {
               className="flex items-center gap-2"
               onClick={() => navigate(currentModule?.path ?? '/')}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground">
                 {currentModule
                   ? <currentModule.icon className="w-4 h-4" />
                   : <Sparkles className="w-4 h-4" />}
