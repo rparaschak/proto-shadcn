@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Grid3x3, Search, Sparkles, Home } from 'lucide-react'
 import { modules } from '@/modules/registry'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function Layout() {
   const location = useLocation()
@@ -92,6 +93,7 @@ export default function Layout() {
       <main className="flex-1 w-full min-h-0">
         <Outlet />
       </main>
+      <Toaster />
     </div>
   )
 }

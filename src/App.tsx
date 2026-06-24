@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import WelcomePage from './components/WelcomePage'
 import AnalyticsDemo1 from './modules/analytics-demo-1/AnalyticsDemo1'
 import AiSupportChat from './modules/ai-support-chat/AiSupportChat'
+import AssetRelations from './modules/asset-relations/AssetRelations'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Route index element={<WelcomePage />} />
           <Route path="/analytics-demo-1/*" element={<AnalyticsDemo1 />} />
           <Route path="/ai-support-chat/*" element={<AiSupportChat />} />
+          <Route path="/asset-relations/*" element={<AssetRelations />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
