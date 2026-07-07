@@ -1,12 +1,25 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, X, Send, Loader2, Bot, User } from 'lucide-react'
+import { MessageSquare, X, Send, Loader2, Bot } from 'lucide-react'
 import { useChatSessions } from '../hooks/ChatSessionsContext'
+import ChatMessageBubble from './ChatMessageBubble'
+import ContactSupportForm from './ContactSupportForm'
 
 export default function ChatWidget() {
-  const { sessions, widgetSessionId, widgetIsLoading, isOpen, toggle, sendWidgetMessage } = useChatSessions()
+  const {
+    sessions,
+    widgetSessionId,
+    widgetIsLoading,
+    isOpen,
+    toggle,
+    sendWidgetMessage,
+    messageFeedback,
+    rateMessage,
+    sendToSupport,
+  } = useChatSessions()
   const [input, setInput] = useState('')
+  const [supportOpen, setSupportOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const widgetMessages = widgetSessionId
@@ -15,13 +28,18 @@ export default function ChatWidget() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [widgetMessages.length, widgetIsLoading])
+  }, [widgetMessages.length, widgetIsLoading, supportOpen])
 
   const handleSend = () => {
     const text = input.trim()
     if (!text || widgetIsLoading) return
     sendWidgetMessage(text)
     setInput('')
+  }
+
+  const handleSupportSubmit = (email: string, note: string) => {
+    sendToSupport(email, note)
+    setSupportOpen(false)
   }
 
   return (
@@ -47,38 +65,14 @@ export default function ChatWidget() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {widgetMessages.length === 0 && (
-              <div className="flex h-full items-center justify-center">
-                <p className="text-sm text-muted-foreground text-center">
-                  Send a message to start a conversation
-                </p>
-              </div>
-            )}
             {widgetMessages.map((msg) => (
-              <div
+              <ChatMessageBubble
                 key={msg.id}
-                className={`flex gap-2 ${msg.sender === 'customer' ? 'justify-end' : ''}`}
-              >
-                {msg.sender === 'ai' && (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-600">
-                    <Bot className="h-3 w-3" />
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                    msg.sender === 'customer'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-                {msg.sender === 'customer' && (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <User className="h-3 w-3" />
-                  </div>
-                )}
-              </div>
+                message={msg}
+                feedback={messageFeedback[msg.id]}
+                onRate={(value) => rateMessage(msg.id, value)}
+                onContactSupport={() => setSupportOpen(true)}
+              />
             ))}
             {widgetIsLoading && (
               <div className="flex gap-2">
@@ -89,6 +83,9 @@ export default function ChatWidget() {
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
               </div>
+            )}
+            {supportOpen && (
+              <ContactSupportForm onSubmit={handleSupportSubmit} onCancel={() => setSupportOpen(false)} />
             )}
             <div ref={messagesEndRef} />
           </div>

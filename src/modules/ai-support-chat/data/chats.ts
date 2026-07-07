@@ -3,6 +3,8 @@ export interface ChatMessage {
   sender: 'customer' | 'ai'
   text: string
   timestamp: string
+  /** Special assistant messages that shouldn't get "was this helpful?" feedback. */
+  kind?: 'welcome' | 'idle' | 'support-confirm'
 }
 
 export interface ChatSession {
